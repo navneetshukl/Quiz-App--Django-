@@ -1,18 +1,96 @@
 <!doctype html>
 <html lang="en">
-  <head>
+
+<head>
     <title>Title</title>
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-  </head>
-  <body>
-      
-    
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
 
-  </body>
+<body>
+
+    <div id="app">
+        <div class="container mt-5 pt-5">
+            <div class="col-md-6 mx-auto">
+                <h3>Give Quiz</h3>
+                <div v-for="question in questions">
+                <hr>
+
+                <p>[[question.question]]</p>
+
+                <div class="form-check" v-for="answer in question.answers">
+                    <input @change="checkAnswer($event,question.uuid)"  :value="answer.answer"  class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                    <label class="form-check-label" for="flexRadioDefault1">
+                        [[answer.answer]]
+                    </label>
+                </div>
+                <hr>
+            </div>
+
+
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+
+
+    <script>
+        var app = new Vue({
+            el: '#app',
+            delimiters: ['[[', ']]'],
+            data() {
+                return {
+                    category:'{{category}}',
+                    questions: []
+                }
+            },
+            methods: {
+                getQuestions(){
+                    var _this=this
+                    fetch(`/api/get-quiz/?category=${_this.category}`)
+                    .then(response => response.json())
+                    .then(result=>{
+                        console.log(result)
+                        _this.questions=result.data
+                    })
+                },
+                checkAnswer(event , uuid){
+
+                    this.questions.map(question=>{
+                        answers=question.answers
+                        for(var i=0;i<answers.length;i++){
+                            if(answers[i].answer==event.target.value){
+                                if(answers[i].is_correct){
+                                    console.log("Your Answer is incorrect")
+                                    alert("Hurray your answer is correct")
+                                } else{
+                                    console.log('your answer is wrong')
+                                    alert("Sorry your answer is incorrect")
+                                }
+                            }
+                        }
+                    })
+
+
+                    console.log(event.target.value , uuid)
+
+                }
+
+            },
+            created() {
+                this.getQuestions()
+                console.log("Page Loaded")
+            },
+        });
+    </script>
+
+</body>
+
 </html>
